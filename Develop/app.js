@@ -4,16 +4,16 @@ const Intern = require("./lib/Intern");
 const inquirer = require("inquirer");
 const path = require("path");
 const fs = require("fs");
+const util = require("util");
+
+const writeFileAsync = util.promisify(fs.writeFile);
 
 const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
-let teamMembers = [];
-
-
-
+let employees = [];
 
 async function promptUser() {
     do {
@@ -42,8 +42,8 @@ async function promptUser() {
                         'Intern',
                         'Done adding team members'
                     ],
-                    when: function (employees) {
-                        return employees.addAnotherEmployee;
+                    when: function (answers) {
+                        return answers.addAnotherEmployee;
                     }
                 },
                 {
@@ -65,24 +65,24 @@ async function promptUser() {
                     type: 'input',
                     name: 'officeNumber',
                     message: "What is the team member's office number?",
-                    when: function (employees) {
-                        return employees.role === 'Manager';
+                    when: function (answers) {
+                        return answers.role === 'Manager';
                     }
                 },
                 {
                     type: 'input',
                     name: 'github',
                     message: "What is the team member's gitlab username?",
-                    when: function (employees) {
-                        return employees.role === 'Engineer';
+                    when: function (answers) {
+                        return answers.role === 'Engineer';
                     }
                 },
                 {
                     type: 'input',
                     name: 'school',
                     message: "What is the team member's school name?",
-                    when: function (employees) {
-                        return employees.role === 'Intern'
+                    when: function (answers) {
+                        return answers.role === 'Intern'
                     }
                 },
 
@@ -97,20 +97,37 @@ async function promptUser() {
 
         if (response.role === 'Manager') {
             const manager = new Manager(response.name, response.id, response.email, response.officeNumber);
-            teamMembers.push(manager)
+            employees.push(manager)
         }
         else if (response.role === 'Engineer') {
             const engineer = new Engineer(response.name, response.id, response.email, response.github);
-            teamMembers.push(engineer);
+            employees.push(engineer);
         }
         else if (response.role === 'Intern') {
             const intern = new Intern(response.name, response.id, response.email, response.school);
-            teamMembers.push(intern);
+            employees.push(intern);
         }
-            console.log(teamMembers)
-
+        console.log(employees)
 
     } while (response.addEmployee);
-}
+    render(employees)
 
-promptUser()
+};
+
+async function writeToFile() {
+    try {
+
+        await promptUser()
+        writeFileAsync(
+            outputPath,
+            render(employees),
+            "utf8"
+        );
+
+        console.log("Successfully wrote to team.html!");
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+writeToFile();
