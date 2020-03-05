@@ -29,7 +29,6 @@ async function promptUser() {
                         'Manager',
                         'Engineer',
                         'Intern',
-                        'Done adding team members'
                     ]
                 },
 
@@ -89,7 +88,7 @@ async function promptUser() {
                 {
                     type: 'confirm',
                     name: 'addEmployee',
-                    message: 'Would you like to add a team member?'
+                    message: 'Would you like to add another team member?'
                 }
 
             ]
@@ -110,7 +109,7 @@ async function promptUser() {
         console.log(employees)
 
     } while (response.addEmployee);
-    render(employees)
+    render(employees);
 
 };
 
