@@ -31,6 +31,8 @@ Team UP is a software engineering team generator command line application. The a
 ## Usage
 <p id='usage'></p>
 
+- cd into the "Develop" directory
+
 - Run
 
 >node app.js
